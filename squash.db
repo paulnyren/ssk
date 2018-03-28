@@ -1,0 +1,153 @@
+use paulny;
+
+drop table payed_membership;
+drop table ELO_rank;
+drop table ELO_rank_doubles;
+drop table singles_matches;
+drop table doubles_matches;
+drop table singles_ladder;
+drop table doubles_ladder;
+drop table shitlist;
+drop table teams;
+drop table players;
+
+
+
+create table players (
+	player_id INTEGER auto_increment UNIQUE PRIMARY KEY,
+	first_name varchar(64),
+	last_name varchar(64),
+	gender varchar(64),
+	profile_picture_url varchar(64),
+	notes varchar(64),
+	email varchar(64),
+	address varchar(64),
+	personal_number varchar(64),
+	phone_number varchar(64),
+	elo_rank INTEGER
+	
+);
+
+create table admin(
+	admin_id INTEGER auto_increment UNIQUE PRIMARY KEY,
+	user_name varchar(64),
+	password varchar(64)	
+);
+
+create table payed_membership (
+	player_id INTEGER,
+	end_date date,
+	FOREIGN KEY (player_id) REFERENCES players(player_id)
+);
+
+create table ELO_rank (
+	player_id INTEGER,
+	singles_elo INTEGER,
+	doubles_elo INTEGER,
+	date date,
+	FOREIGN KEY (player_id) REFERENCES players(player_id)
+);
+
+
+create table teams (
+	player_1 INTEGER,
+	player_2 INTEGER,
+	team_id INTEGER auto_increment UNIQUE PRIMARY KEY,
+	elo_rank INTEGER,
+	FOREIGN KEY (player_1) REFERENCES players(player_id),
+	FOREIGN KEY (player_2) REFERENCES players(player_id)
+);
+create table ELO_rank_doubles (
+	team_id INTEGER,
+	elo_rank INTEGER,
+	date date,
+	FOREIGN KEY (team_id) REFERENCES teams(team_id)
+);
+
+create table shitlist (
+	player_1 INTEGER,
+	player_2 INTEGER,
+	notes varchar(64),
+	FOREIGN KEY (player_1) REFERENCES players(player_id),
+	FOREIGN KEY (player_2) REFERENCES players(player_id)
+);
+
+create table singles_ladder (
+	player_id INTEGER,
+	rank INTEGER UNIQUE,
+	date date,
+	FOREIGN KEY (player_id) REFERENCES players(player_id)
+);
+
+
+create table doubles_ladder (
+	team INTEGER,
+	rank INTEGER UNIQUE,
+	date date,
+	FOREIGN KEY (team) REFERENCES teams(team_id)
+);
+
+create table singles_matches(
+	match_id INTEGER auto_increment PRIMARY KEY,
+	winner INTEGER,
+	loser INTEGER,
+	match_date date,
+	winner_score INTEGER
+		check(winner_score <= 3 and winner_score > loser_score),
+	loser_score INTEGER
+		check(loser_score >= 2 and loser_score >= 0),
+	court INTEGER
+		check (court >= 0 AND court <= 3),
+	referee INTEGER,
+	notes VARCHAR(64),
+	FOREIGN KEY (winner) REFERENCES players(player_id),
+	FOREIGN KEY (loser) REFERENCES players(player_id),
+	FOREIGN KEY (referee) REFERENCES players(player_id)
+);
+
+create table doubles_matches(
+	match_id INTEGER auto_increment PRIMARY KEY,
+	winner INTEGER,
+	loser INTEGER,
+	match_date date,
+	winner_score INTEGER
+		check(winner_score <= 3 AND winner_score > loser_score),
+	loser_score INTEGER
+		check(loser_score <= 2 and loser_score <= 0),
+	court INTEGER
+		check(court >= 0 and court <= 3),
+	referee INTEGER,
+	notes VARCHAR(64),
+	FOREIGN KEY (winner) REFERENCES teams(team_id),
+	FOREIGN KEY (loser) REFERENCES teams(team_id),
+	FOREIGN KEY (referee) REFERENCES players(player_id)
+);
+
+
+
+
+INSERT INTO players VALUES (NULL,'Mahatma', 'Ghandi', 'male', '/snyggbild.jpg', 'dead', 1000, 1200, 'mahatma.ghandi@nordfront.se', 'Storgatan 1, 155 15, Malmö', '19191201-5141','0700232323'  );
+INSERT INTO payed_membership VALUES (1, '20190101' );
+
+INSERT INTO players VALUES (NULL,'joseph', 'Mengele', 'male', '/fulbild.png', 'dead', 1200, 1300 , 'joseph@mengele.se', 'nånjävla adress', '87293981237', '1283123' );
+INSERT INTO payed_membership VALUES (2, '20190202' );
+
+INSERT INTO shitlist VALUES (1, 2, 'de är döda');
+
+INSERT INTO singles_ladder VALUES (1, 1, NOW() );
+
+INSERT INTO teams VALUES (1, 2, null, 1500);
+
+INSERT INTO doubles_ladder VALUES (1, 1, NOW() );
+
+
+
+INSERT INTO players VALUES (NULL,'Trolle', 'von Sydow', 'male', '/snyggbild.jpg', 'toppenkille',500, 2000,'joseph@mengele.se', 'nånjävla adress', '87293981237', '1283123'  );
+INSERT INTO payed_membership VALUES (3, '20190101' );
+
+INSERT INTO players VALUES (NULL,'Paul', 'Nyrén', 'male', '/snyggbild.jpg', 'former world #1', 2200, 1900, 'joseph@mengele.se', 'nånjävla adress', '87293981237', '1283123'  );
+INSERT INTO payed_membership VALUES (4, '20190101' );
+
+INSERT INTO singles_matches VALUES (1, 4, 3, NOW(), 3, 0, 1, 1, 'easy game');
+
+INSERT INTO ELO_rank VALUES (1, 200, 300, NOW());
